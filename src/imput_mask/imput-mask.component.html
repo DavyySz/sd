@@ -7,19 +7,27 @@
             <input type="text" class="form-control" placeholder="Benutzername" [(ngModel)]="newUserName">
         </div>
 
-        <!-- Mehrfachauswahl für Rollen -->
+        <!-- Mehrfachauswahl für Rollen mit bündigem Löschen-Button -->
         <div class="mb-3">
             <h5 class="text-white">Rollen auswählen:</h5>
-            <div *ngFor="let role of roles" class="form-check">
-                <input 
-                    class="form-check-input" 
-                    type="checkbox" 
-                    [value]="role.name"
-                    (change)="toggleUserRole(role.name, $event)"
-                    [checked]="newUserRoles.includes(role.name)">
-                <label class="form-check-label text-white">
-                    {{ role.name }}
-                </label>
+            <div *ngFor="let role of roles; let i = index" 
+                 class="d-flex align-items-center justify-content-between p-2 border rounded bg-dark">
+                <!-- Linke Seite: Checkbox + Rollenname mit fester Breite -->
+                <div class="d-flex align-items-center" style="min-width: 200px;">
+                    <input 
+                        class="form-check-input me-2" 
+                        type="checkbox" 
+                        [value]="role.name"
+                        (change)="toggleUserRole(role.name, $event)"
+                        [checked]="newUserRoles.includes(role.name)">
+                    <label class="form-check-label text-white">
+                        {{ role.name }}
+                    </label>
+                </div>
+                <!-- Rechte Seite: Löschen-Button (Immer bündig rechts) -->
+                <button class="btn btn-sm btn-danger px-3 py-1" (click)="deleteRole(i)">
+                    ❌
+                </button>
             </div>
         </div>
 
@@ -43,8 +51,8 @@
                             <td>{{ user.name }}</td>
                             <td>
                                 <span *ngFor="let role of user.roles" 
-                                    class="badge p-2 me-1 text-white"
-                                    [style.backgroundColor]="getRoleColor(role)">
+                                      class="badge p-2 me-1 text-white"
+                                      [style.backgroundColor]="getRoleColor(role)">
                                     {{ role }}
                                 </span>
                             </td>
@@ -73,7 +81,6 @@
 
             <!-- Eingabe für Rollenfarbe -->
             <div class="input-group mb-3">
-                
                 <input type="color" class="form-control form-control-color" [(ngModel)]="newRoleColor">
             </div>
 
@@ -82,6 +89,10 @@
         </div>
     </div>
 </div>
+
+
+
+
 
 
   

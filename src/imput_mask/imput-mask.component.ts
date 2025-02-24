@@ -17,10 +17,10 @@ export class ImputMaskComponent {
   newRoleColor: string = '#000000';  
 
   // Liste der Benutzer
-  users: any[] = [];
+  users: { name: string; roles: string[] }[] = [];
 
   // Liste der Rollen
-  roles: any[] = [
+  roles: { name: string; color: string }[] = [
     { name: 'Mitglied', color: '#007bff' },
     { name: 'Admin', color: '#28a745' },
     { name: 'Gast', color: '#6c757d' }
@@ -64,6 +64,22 @@ export class ImputMaskComponent {
     }
   }
 
+  // Rolle löschen
+  deleteRole(index: number) {
+    const roleToDelete: string = this.roles[index].name;
+
+    // Entferne die Rolle aus der Rollenliste
+    this.roles.splice(index, 1);
+
+    // Entferne die Rolle aus allen Benutzern, falls sie zugewiesen wurde
+    this.users.forEach(user => {
+      user.roles = user.roles.filter((role: string) => role !== roleToDelete);
+    });
+
+    // Entferne die Rolle aus der neuen Benutzer-Rollenauswahl
+    this.newUserRoles = this.newUserRoles.filter((role: string) => role !== roleToDelete);
+  }
+
   // Farbe für eine Rolle abrufen
   getRoleColor(role: string): string {
     const foundRole = this.roles.find(r => r.name === role);
@@ -79,4 +95,6 @@ export class ImputMaskComponent {
     }
   }
 }
+
+
 
