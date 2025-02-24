@@ -5,16 +5,16 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-imput-mask',
   standalone: true,
-  imports: [CommonModule, FormsModule],  // CommonModule und FormsModule für ngModel
+  imports: [CommonModule, FormsModule],  
   templateUrl: './imput-mask.component.html',
   styleUrls: ['../styles.css']
 })
 export class ImputMaskComponent {
   // Eingabefelder für Benutzer
   newUserName: string = '';
-  newUserRole: string = '';
+  newUserRoles: string[] = [];  // Mehrfachauswahl für Rollen
   newRoleName: string = '';
-  newRoleColor: string = '#000000';  // Standardfarbe für neue Rollen
+  newRoleColor: string = '#000000';  
 
   // Liste der Benutzer
   users: any[] = [];
@@ -26,21 +26,23 @@ export class ImputMaskComponent {
     { name: 'Gast', color: '#6c757d' }
   ];
 
-  // Rolle für alle Benutzer
-  allUsersRole: string = 'Mitglied';
-
-  // Benutzer hinzufügen
+  // Benutzer hinzufügen (mit mehreren Rollen)
   addUser() {
-    if (this.newUserName && this.newUserRole) {
-      const role = this.roles.find(r => r.name === this.newUserRole);
+    if (this.newUserName.trim() !== '' && this.newUserRoles.length > 0) {
       this.users.push({
-        name: this.newUserName,
-        role: this.newUserRole,
-        color: role ? role.color : '#6c757d' // Standardfarbe
+        name: this.newUserName.trim(),
+        roles: [...this.newUserRoles] // Kopiere die ausgewählten Rollen
       });
+
+      // Eingabefelder zurücksetzen
       this.newUserName = '';
-      this.newUserRole = '';
+      this.newUserRoles = [];
     }
+  }
+
+  // Benutzer löschen
+  deleteUser(index: number) {
+    this.users.splice(index, 1);
   }
 
   // Alle Benutzer löschen
@@ -48,33 +50,33 @@ export class ImputMaskComponent {
     this.users = [];
   }
 
-  // Rolle für alle Benutzer setzen
-  setAllUsersRole() {
-    if (this.allUsersRole) {
-      this.users.forEach(user => user.role = this.allUsersRole);
-    }
-  }
-
   // Eigene Rolle erstellen
   addRole() {
-    if (this.newRoleName && this.newRoleColor) {
+    if (this.newRoleName.trim() !== '' && this.newRoleColor) {
       this.roles.push({
-        name: this.newRoleName,
+        name: this.newRoleName.trim(),
         color: this.newRoleColor
       });
+
+      // Eingabefelder zurücksetzen
       this.newRoleName = '';
-      this.newRoleColor = '#000000';  // Zurücksetzen der Farbe
+      this.newRoleColor = '#000000';  
     }
   }
 
-  // Hilfsmethode, um die Farbe basierend auf der Rolle zu bekommen
+  // Farbe für eine Rolle abrufen
   getRoleColor(role: string): string {
     const foundRole = this.roles.find(r => r.name === role);
-    return foundRole ? foundRole.color : '#6c757d'; // Standardfarbe für unbekannte Rollen
+    return foundRole ? foundRole.color : '#6c757d'; 
   }
 
-  // Benutzer löschen (Aufruf im HTML, z.B. beim Klicken auf den Löschen-Button)
-  deleteUser(index: number) {
-    this.users.splice(index, 1);  // Entfernt den Benutzer aus der Liste
+  // Rollen für Benutzer in der Checkbox-Liste toggeln
+  toggleUserRole(role: string, event: any) {
+    if (event.target.checked) {
+      this.newUserRoles.push(role);
+    } else {
+      this.newUserRoles = this.newUserRoles.filter(r => r !== role);
+    }
   }
 }
+
