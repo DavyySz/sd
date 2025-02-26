@@ -1,15 +1,23 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';  // 🔹 Router importieren
 
 @Component({
   selector: 'app-imput-mask',
   standalone: true,
-  imports: [CommonModule, FormsModule],  
+  imports: [CommonModule, FormsModule, RouterModule],  // 🔹 RouterModule hinzugefügt
   templateUrl: './imput-mask.component.html',
   styleUrls: ['../styles.css']
 })
 export class ImputMaskComponent {
+  constructor(private router: Router) {}  // 🔹 Router in den Konstruktor injizieren
+
+  // 🔹 Methode zur Weiterleitung zur nächsten Seite
+  goToNextPage() {
+    this.router.navigate(['/startpage-admin']);  
+  }
+
   // Eingabefelder für Benutzer
   newUserName: string = '';
   newUserRoles: string[] = [];  // Mehrfachauswahl für Rollen
@@ -95,6 +103,7 @@ export class ImputMaskComponent {
     }
   }
 }
+
 
 
 
