@@ -1,100 +1,75 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';  // 🔹 Router importieren
+import { Router, RouterModule } from '@angular/router';
+import { UserService } from '../app/services/user.service';
 
 @Component({
   selector: 'app-imput-mask',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],  // 🔹 RouterModule hinzugefügt
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './imput-mask.component.html',
   styleUrls: ['../styles.css']
 })
 export class ImputMaskComponent {
-  constructor(private router: Router) {}  // 🔹 Router in den Konstruktor injizieren
+  constructor(private router: Router, private userService: UserService) {}  
 
-  // 🔹 Methode zur Weiterleitung zur nächsten Seite
-  goToNextPage() {
-    this.router.navigate(['/startpage-admin']);  
-  }
-
-  // Eingabefelder für Benutzer
   newUserName: string = '';
-  newUserRoles: string[] = [];  // Mehrfachauswahl für Rollen
+  newUserRoles: string[] = [];  
   newRoleName: string = '';
   newRoleColor: string = '#000000';  
-
-  // Liste der Benutzer
   users: { name: string; roles: string[] }[] = [];
+  roles: { name: string; color: string }[] = [];
 
-  // Liste der Rollen
-  roles: { name: string; color: string }[] = [
-    { name: 'Mitglied', color: '#007bff' },
-    { name: 'Admin', color: '#28a745' },
-    { name: 'Gast', color: '#6c757d' }
-  ];
+  ngOnInit() {
+    this.roles = this.userService.getRoles(); // ✅ Lade gespeicherte Rollen
+    this.users = this.userService.getUsers(); // ✅ Lade gespeicherte Benutzer
+  }
 
-  // Benutzer hinzufügen (mit mehreren Rollen)
+  // 🔹 Benutzer hinzufügen
   addUser() {
     if (this.newUserName.trim() !== '' && this.newUserRoles.length > 0) {
       this.users.push({
         name: this.newUserName.trim(),
-        roles: [...this.newUserRoles] // Kopiere die ausgewählten Rollen
+        roles: [...this.newUserRoles]
       });
-
-      // Eingabefelder zurücksetzen
+      this.userService.setUsers(this.users); // ✅ Benutzer speichern
       this.newUserName = '';
       this.newUserRoles = [];
     }
   }
 
-  // Benutzer löschen
+  // 🔹 Benutzer löschen
   deleteUser(index: number) {
     this.users.splice(index, 1);
+    this.userService.setUsers(this.users); // ✅ Benutzer aktualisieren
   }
 
-  // Alle Benutzer löschen
-  deleteAllUsers() {
-    this.users = [];
-  }
-
-  // Eigene Rolle erstellen
+  // 🔹 Neue Rolle erstellen
   addRole() {
     if (this.newRoleName.trim() !== '' && this.newRoleColor) {
       this.roles.push({
         name: this.newRoleName.trim(),
         color: this.newRoleColor
       });
-
-      // Eingabefelder zurücksetzen
+      this.userService.setRoles(this.roles); // ✅ Rollen speichern
       this.newRoleName = '';
       this.newRoleColor = '#000000';  
     }
   }
 
-  // Rolle löschen
+  // 🔹 Rolle löschen
   deleteRole(index: number) {
-    const roleToDelete: string = this.roles[index].name;
-
-    // Entferne die Rolle aus der Rollenliste
+    const roleToDelete = this.roles[index].name;
     this.roles.splice(index, 1);
-
-    // Entferne die Rolle aus allen Benutzern, falls sie zugewiesen wurde
     this.users.forEach(user => {
-      user.roles = user.roles.filter((role: string) => role !== roleToDelete);
+      user.roles = user.roles.filter(role => role !== roleToDelete);
     });
-
-    // Entferne die Rolle aus der neuen Benutzer-Rollenauswahl
-    this.newUserRoles = this.newUserRoles.filter((role: string) => role !== roleToDelete);
+    this.newUserRoles = this.newUserRoles.filter(role => role !== roleToDelete);
+    this.userService.setRoles(this.roles); // ✅ Rollen speichern
   }
 
-  // Farbe für eine Rolle abrufen
-  getRoleColor(role: string): string {
-    const foundRole = this.roles.find(r => r.name === role);
-    return foundRole ? foundRole.color : '#6c757d'; 
-  }
-
-  // Rollen für Benutzer in der Checkbox-Liste toggeln
+  // 🔹 Methode zum Rollen-Togglen
   toggleUserRole(role: string, event: any) {
     if (event.target.checked) {
       this.newUserRoles.push(role);
@@ -102,7 +77,28 @@ export class ImputMaskComponent {
       this.newUserRoles = this.newUserRoles.filter(r => r !== role);
     }
   }
+
+  // 🔹 Farbe einer Rolle abrufen
+  getRoleColor(role: string): string {
+    return this.userService.getRoleColor(role); // ✅ Holt gespeicherte Farben
+  }
+
+  // 🔹 Benutzer speichern und zur Startseite weiterleiten
+  goToNextPage() {
+    console.log('🚀 Weiterleitung - Benutzerliste:', this.users);
+    this.userService.setUsers(this.users); 
+    this.router.navigate(['/startpage-admin']);
+  }
+
+  // 🔹 **Alle Benutzer löschen**
+  deleteAllUsers() {
+    this.users = [];  // Setzt die Benutzerliste auf leer
+    this.userService.setUsers([]); // ✅ Leere Benutzerliste speichern
+  }
 }
+
+
+
 
 
 
