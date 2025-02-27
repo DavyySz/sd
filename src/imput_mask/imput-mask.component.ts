@@ -20,13 +20,17 @@ export class ImputMaskComponent {
   roles: { name: string; color: string }[] = [];
 
   constructor(private router: Router, private userService: UserService) {
-    this.loadUsersAndRoles(); // 🔥 Direkt beim Start laden
+    this.loadUsersAndRoles();
   }
 
   loadUsersAndRoles() {
     this.users = this.userService.getUsers();
     this.roles = this.userService.getRoles();
+  
+    // 🔹 Benutzer nach Anzahl der Rollen absteigend sortieren
+    this.users.sort((a, b) => a.roles.length - b.roles.length);
   }
+  
 
   addUser() {
     if (this.newUserName.trim() !== '' && this.newUserRoles.length > 0) {
@@ -34,27 +38,25 @@ export class ImputMaskComponent {
         name: this.newUserName.trim(),
         roles: [...this.newUserRoles]
       });
-      this.userService.setUsers(this.users); // ✅ Benutzer speichern
+      this.userService.setUsers(this.users);
       this.newUserName = '';
       this.newUserRoles = [];
+      this.sortUsers();
     }
   }
 
   addRole() {
     if (this.newRoleName.trim() !== '' && this.newRoleColor) {
-      this.roles.push({
-        name: this.newRoleName.trim(),
-        color: this.newRoleColor
-      });
-      this.userService.setRoles(this.roles); // ✅ Rollen speichern
+      this.roles.push({ name: this.newRoleName.trim(), color: this.newRoleColor });
+      this.userService.setRoles(this.roles);
       this.newRoleName = '';
       this.newRoleColor = '#000000';
     }
   }
 
   goToNextPage() {
-    this.userService.setUsers(this.users);
-    this.userService.setRoles(this.roles);
+    this.userService.setUsers([...this.users]);
+    this.userService.setRoles([...this.roles]);
     this.router.navigate(['/startpage-admin']);
   }
 
@@ -72,25 +74,29 @@ export class ImputMaskComponent {
     this.users.forEach(user => {
       user.roles = user.roles.filter(role => role !== roleToDelete);
     });
-    this.newUserRoles = this.newUserRoles.filter(role => role !== roleToDelete);
     this.userService.setRoles(this.roles);
   }
-  
+
   getRoleColor(role: string): string {
     return this.userService.getRoleColor(role);
   }
-  
+
   deleteUser(index: number) {
     this.users.splice(index, 1);
     this.userService.setUsers(this.users);
   }
-  
+
   deleteAllUsers() {
     this.users = [];
     this.userService.setUsers(this.users);
   }
-  
+
+  private sortUsers() {
+    this.users.sort((a, b) => a.roles.length - b.roles.length);
+  }
 }
+
+
 
 
 
