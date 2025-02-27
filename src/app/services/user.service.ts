@@ -9,64 +9,56 @@ export class UserService {
   private roles: { name: string; color: string }[] = [];
 
   constructor(@Inject(PLATFORM_ID) private platformId: object) {
-    this.loadFromStorage(); // 🔥 Direkt beim Start Daten laden
+    this.loadFromStorage(); // Lade Daten aus localStorage
   }
 
-  // 🔹 Benutzer speichern
   setUsers(users: { name: string; roles: string[] }[]) {
-    console.log('✅ Speichere Benutzer:', users);
-    this.users = [...users];
-
+    this.users = Array.isArray(users) ? [...users] : []; // ✅ Sicherstellen, dass es ein Array ist
     if (isPlatformBrowser(this.platformId)) {
       localStorage.setItem('users', JSON.stringify(this.users));
     }
   }
+  
 
-  // 🔹 Benutzer abrufen
   getUsers() {
     if (isPlatformBrowser(this.platformId)) {
-      this.loadFromStorage(); // 🔥 Stelle sicher, dass Daten geladen werden
+      this.loadFromStorage();
     }
-    console.log('📥 Geladene Benutzer:', this.users);
-    return this.users;
+    return [...this.users]; // Gib eine Kopie zurück
   }
 
-  // 🔹 **Rollen speichern** (✅ FEHLTE ZUVOR!)
   setRoles(roles: { name: string; color: string }[]) {
-    console.log('🎨 Speichere Rollen:', roles);
-    this.roles = [...roles];
-
+    this.roles = Array.isArray(roles) ? [...roles] : [];
     if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem('roles', JSON.stringify(this.roles)); // ✅ Speichert Rollen mit Farben
+      localStorage.setItem('roles', JSON.stringify(this.roles));
     }
   }
 
-  // 🔹 **Gespeicherte Rollen abrufen** (✅ FEHLTE ZUVOR!)
   getRoles() {
     if (isPlatformBrowser(this.platformId)) {
-      this.loadFromStorage(); // 🔥 Stelle sicher, dass Daten geladen werden
+      this.loadFromStorage();
     }
-    console.log('📥 Geladene Rollen:', this.roles);
-    return this.roles;
+    return [...this.roles]; // Kopie zurückgeben
   }
 
-  // 🔹 **Farbe einer Rolle abrufen** (✅ FEHLTE ZUVOR!)
   getRoleColor(role: string): string {
     const foundRole = this.roles.find(r => r.name === role);
-    return foundRole ? foundRole.color : '#6c757d'; // ✅ Standardfarbe für unbekannte Rollen
+    return foundRole ? foundRole.color : '#6c757d'; // Standardfarbe falls nicht gefunden
   }
 
-  // 🔹 Speicher aus `localStorage` laden (wenn im Browser)
   private loadFromStorage() {
     if (isPlatformBrowser(this.platformId)) {
-      const storedUsers = localStorage.getItem('users');
-      this.users = storedUsers ? JSON.parse(storedUsers) : [];
-
-      const storedRoles = localStorage.getItem('roles'); // ✅ Rollen mit Farben laden
-      this.roles = storedRoles ? JSON.parse(storedRoles) : [];
+      this.users = JSON.parse(localStorage.getItem('users') || '[]');
+      this.roles = JSON.parse(localStorage.getItem('roles') || '[]');
     }
   }
 }
+
+
+
+
+
+
 
 
 

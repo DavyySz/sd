@@ -11,16 +11,21 @@ import { UserService } from '../app/services/user.service';
 })
 export class StartpageAdminComponent {
   users: { name: string; roles: string[] }[] = [];
-  roles: { name: string; color: string }[] = [];
 
-  constructor(private userService: UserService) {
-    this.users = this.userService.getUsers();
-    this.roles = this.userService.getRoles();
+  constructor(private userService: UserService) {  
+    this.loadUsers();
+  }
+
+  loadUsers() {
+    this.users = this.userService.getUsers().sort((a, b) => a.roles.length - b.roles.length);
   }
 
   getRoleColor(role: string): string {
     return this.userService.getRoleColor(role);
   }
 }
+
+
+
 
 
