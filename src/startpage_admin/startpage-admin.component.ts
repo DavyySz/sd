@@ -5,25 +5,22 @@ import { UserService } from '../app/services/user.service';
 @Component({
   selector: 'app-startpage-admin',
   standalone: true,
-  imports: [CommonModule],  
+  imports: [CommonModule],
   templateUrl: './startpage-admin.component.html',
   styleUrls: ['../styles.css']
 })
 export class StartpageAdminComponent {
-  users: { name: string; roles: string[] }[] = [];  // Hier speichern wir die Benutzerliste
+  users: { name: string; roles: string[] }[] = [];
+  roles: { name: string; color: string }[] = [];
 
-  constructor(private userService: UserService) {  
-    this.users = this.userService.getUsers();  // 🔹 Lade Benutzer aus dem Service
+  constructor(private userService: UserService) {
+    this.users = this.userService.getUsers();
+    this.roles = this.userService.getRoles();
   }
 
-  // 🔹 Funktion, um die Farbe der Rolle zu erhalten
   getRoleColor(role: string): string {
-    const roleColors: { [key: string]: string } = {
-      'Mitglied': '#007bff',
-      'Admin': '#28a745',
-      'Gast': '#6c757d'
-    };
-    return roleColors[role] || '#6c757d';  // Falls keine Farbe definiert ist, Standardfarbe nutzen
+    return this.userService.getRoleColor(role);
   }
 }
+
 
