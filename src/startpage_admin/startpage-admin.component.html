@@ -1,11 +1,36 @@
 <div class="container-fluid" style="max-height: 90vh; overflow-y: auto;">
-  <!-- Gruppenübersicht -->
-  <h3 class="mt-4">👥 Gruppenübersicht:</h3>
-  <ul class="list-group">
-    <li *ngFor="let user of users" class="list-group-item">
-      {{ user.name }} - <span *ngFor="let role of user.roles" class="badge bg-secondary me-1">{{ role }}</span>
-    </li>
-  </ul>
+<!-- 👥 Gruppenübersicht -->
+        <!-- Benutzerliste -->
+        <div class="mt-4">
+          <h4 class="text-center text-white">Benutzerliste</h4>
+          <div class="table-responsive">
+              <table class="table table-dark mt-3">
+                  <thead>
+                      <tr>
+                          <th>Benutzername</th>
+                          <th>Rollen</th>
+                          <th>Aktionen</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <tr *ngFor="let user of users; let i = index">
+                          <td>{{ user.name }}</td>
+                          <td>
+                              <span *ngFor="let role of user.roles" 
+                                    class="badge p-2 me-1 text-white"
+                                    [style.backgroundColor]="getRoleColor(role)">
+                                  {{ role }}
+                              </span>
+                          </td>
+                          <td>
+                              <button class="btn btn-danger btn-sm" (click)="deleteUser(i)">Löschen</button>
+                          </td>
+                      </tr>
+                  </tbody>
+              </table>
+          </div>
+      </div>
+
 
   <!-- Ereignis-Button -->
   <button class="btn btn-success w-100 mt-3" (click)="toggleEventForm()">📅 Ereignis anlegen</button>

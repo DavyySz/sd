@@ -13,7 +13,7 @@ export class UserService {
   }
 
   // 🔵 Nutzer abrufen
-  getUsers() {
+  getUsers(): { name: string; roles: string[] }[] {
     return this.users;
   }
 
@@ -74,6 +74,8 @@ export class UserService {
       this.events = events;
       this.saveToStorage();
     }
+
+
 }
 
 

@@ -23,15 +23,13 @@ export class ImputMaskComponent {
     this.loadUsersAndRoles();
   }
 
+  // Lädt Benutzer und Rollen aus dem Service
   loadUsersAndRoles() {
     this.users = this.userService.getUsers();
     this.roles = this.userService.getRoles();
-  
-    // 🔹 Benutzer nach Anzahl der Rollen absteigend sortieren
-    this.users.sort((a, b) => a.roles.length - b.roles.length);
   }
-  
 
+  // Benutzer hinzufügen
   addUser() {
     if (this.newUserName.trim() !== '' && this.newUserRoles.length > 0) {
       this.users.push({
@@ -41,25 +39,23 @@ export class ImputMaskComponent {
       this.userService.setUsers(this.users);
       this.newUserName = '';
       this.newUserRoles = [];
-      this.sortUsers();
     }
   }
 
+  // Rolle hinzufügen
   addRole() {
     if (this.newRoleName.trim() !== '' && this.newRoleColor) {
-      this.roles.push({ name: this.newRoleName.trim(), color: this.newRoleColor });
+      this.roles.push({
+        name: this.newRoleName.trim(),
+        color: this.newRoleColor
+      });
       this.userService.setRoles(this.roles);
       this.newRoleName = '';
       this.newRoleColor = '#000000';
     }
   }
 
-  goToNextPage() {
-    this.userService.setUsers([...this.users]);
-    this.userService.setRoles([...this.roles]);
-    this.router.navigate(['/startpage-admin']);
-  }
-
+  // Benutzer zu einer Rolle hinzufügen oder entfernen
   toggleUserRole(role: string, event: any) {
     if (event.target.checked) {
       this.newUserRoles.push(role);
@@ -68,33 +64,45 @@ export class ImputMaskComponent {
     }
   }
 
+  // Rolle löschen
   deleteRole(index: number) {
     const roleToDelete = this.roles[index].name;
     this.roles.splice(index, 1);
     this.users.forEach(user => {
       user.roles = user.roles.filter(role => role !== roleToDelete);
     });
+    this.newUserRoles = this.newUserRoles.filter(role => role !== roleToDelete);
     this.userService.setRoles(this.roles);
   }
 
-  getRoleColor(role: string): string {
-    return this.userService.getRoleColor(role);
-  }
-
+  // Benutzer löschen
   deleteUser(index: number) {
     this.users.splice(index, 1);
     this.userService.setUsers(this.users);
   }
 
+  // Alle Benutzer löschen
   deleteAllUsers() {
     this.users = [];
     this.userService.setUsers(this.users);
   }
 
-  private sortUsers() {
-    this.users.sort((a, b) => a.roles.length - b.roles.length);
+  // Farbe einer Rolle abrufen
+  getRoleColor(role: string): string {
+    const foundRole = this.roles.find(r => r.name === role);
+    return foundRole ? foundRole.color : '#000000';
   }
+
+  // Zur Startseite navigieren
+  goToNextPage() {
+    this.userService.setUsers([...this.users]);
+    this.router.navigate(['/startpage-admin']);
+  }
+  
 }
+
+
+
 
 
 

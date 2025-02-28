@@ -97,6 +97,32 @@ export class StartpageAdminComponent {
     return debts;
   }
 
+  // 🟢 Rollenfarbe abrufen
+  getRoleColor(role: string): string {
+  return this.userService.getRoleColor(role);
+  }
+
+  deleteUser(index: number) {
+    const userToDelete = this.users[index].name;
+  
+    // Benutzer aus der Liste entfernen
+    this.users.splice(index, 1);
+  
+    // Aktualisiere die gespeicherten Benutzer
+    this.userService.setUsers(this.users);
+  
+    // Entferne diesen Benutzer aus allen Ereignissen, in denen er vorkam
+    this.events.forEach(event => {
+      if (event.payer === userToDelete) {
+        event.payer = ''; // Oder einen Hinweis setzen, dass der Zahler gelöscht wurde
+      }
+      event.beneficiaries = event.beneficiaries.filter(b => b !== userToDelete);
+    });
+  
+    // Ereignisse aktualisieren
+    this.userService.setEvents(this.events);
+  }
+  
 
 }
 
