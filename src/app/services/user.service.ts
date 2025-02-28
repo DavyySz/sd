@@ -1,5 +1,4 @@
-import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { Injectable } from '@angular/core';
 
 @Injectable({
   providedIn: 'root'
@@ -7,52 +6,84 @@ import { isPlatformBrowser } from '@angular/common';
 export class UserService {
   private users: { name: string; roles: string[] }[] = [];
   private roles: { name: string; color: string }[] = [];
+  private events: { name: string; payer: string; amount: number; beneficiaries: string[] }[] = [];
 
-  constructor(@Inject(PLATFORM_ID) private platformId: object) {
-    this.loadFromStorage(); // Lade Daten aus localStorage
+  constructor() {
+    this.loadFromStorage();
   }
 
-  setUsers(users: { name: string; roles: string[] }[]) {
-    this.users = Array.isArray(users) ? [...users] : []; // ✅ Sicherstellen, dass es ein Array ist
-    if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem('users', JSON.stringify(this.users));
-    }
-  }
-  
-
+  // 🔵 Nutzer abrufen
   getUsers() {
-    if (isPlatformBrowser(this.platformId)) {
-      this.loadFromStorage();
-    }
-    return [...this.users]; // Gib eine Kopie zurück
+    return this.users;
   }
 
-  setRoles(roles: { name: string; color: string }[]) {
-    this.roles = Array.isArray(roles) ? [...roles] : [];
-    if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem('roles', JSON.stringify(this.roles));
-    }
+  // 🔵 Nutzer speichern
+  setUsers(users: { name: string; roles: string[] }[]) {
+    this.users = users;
+    this.saveToStorage();
   }
 
+  // 🟢 Rollen abrufen
   getRoles() {
-    if (isPlatformBrowser(this.platformId)) {
-      this.loadFromStorage();
-    }
-    return [...this.roles]; // Kopie zurückgeben
+    return this.roles;
   }
 
+  // 🟢 Rollen speichern
+  setRoles(roles: { name: string; color: string }[]) {
+    this.roles = roles;
+    this.saveToStorage();
+  }
+
+  // 🟣 Ereignisse abrufen
+  getEvents() {
+    return this.events;
+  }
+
+  // 🟣 Ereignis hinzufügen
+  addEvent(event: { name: string; payer: string; amount: number; beneficiaries: string[] }) {
+    this.events.push(event);
+    this.saveToStorage();
+  }
+
+  // 🔴 Bestimmte Rollenfarbe abrufen
   getRoleColor(role: string): string {
     const foundRole = this.roles.find(r => r.name === role);
-    return foundRole ? foundRole.color : '#6c757d'; // Standardfarbe falls nicht gefunden
+    return foundRole ? foundRole.color : '#000000'; // Standardfarbe Schwarz
   }
 
-  private loadFromStorage() {
-    if (isPlatformBrowser(this.platformId)) {
-      this.users = JSON.parse(localStorage.getItem('users') || '[]');
-      this.roles = JSON.parse(localStorage.getItem('roles') || '[]');
+  // 🟡 Daten sicher in localStorage speichern
+  private saveToStorage() {
+    if (typeof window !== 'undefined') { // ✅ Verhindert `localStorage is not defined`
+      localStorage.setItem('users', JSON.stringify(this.users));
+      localStorage.setItem('roles', JSON.stringify(this.roles));
+      localStorage.setItem('events', JSON.stringify(this.events));
     }
   }
+
+  // 🟡 Daten sicher aus localStorage laden
+  private loadFromStorage() {
+    if (typeof window !== 'undefined') { // ✅ Verhindert Fehler im SSR-Modus
+      this.users = JSON.parse(localStorage.getItem('users') || '[]');
+      this.roles = JSON.parse(localStorage.getItem('roles') || '[]');
+      this.events = JSON.parse(localStorage.getItem('events') || '[]');
+    }
+  }
+
+    // 🟣 Ereignisse setzen (Fehlende Methode)
+    setEvents(events: { name: string; payer: string; amount: number; beneficiaries: string[] }[]) {
+      this.events = events;
+      this.saveToStorage();
+    }
 }
+
+
+
+
+
+
+
+
+
 
 
 

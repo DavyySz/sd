@@ -1,29 +1,110 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { UserService } from '../app/services/user.service';
 
 @Component({
   selector: 'app-startpage-admin',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './startpage-admin.component.html',
   styleUrls: ['../styles.css']
 })
 export class StartpageAdminComponent {
   users: { name: string; roles: string[] }[] = [];
+  events: { name: string; payer: string; amount: number; beneficiaries: string[] }[] = [];
+  eventFormVisible = false;
+  newEvent = { name: '', payer: '', amount: 0, beneficiaries: [] as string[] };
+  payer = '';
+  selectedPayer: { name: string; roles: string[] } | null = null;
+  filteredUsers: { name: string; roles: string[] }[] = [];
 
-  constructor(private userService: UserService) {  
-    this.loadUsers();
+  constructor(private userService: UserService) {
+    this.loadUsersAndEvents();
   }
 
-  loadUsers() {
-    this.users = this.userService.getUsers().sort((a, b) => a.roles.length - b.roles.length);
+  // 🔄 Daten aus dem Service laden
+  loadUsersAndEvents() {
+    this.users = this.userService.getUsers();
+    this.events = this.userService.getEvents();
   }
 
-  getRoleColor(role: string): string {
-    return this.userService.getRoleColor(role);
+  // 🔘 Formular ein-/ausblenden
+  toggleEventForm() {
+    this.eventFormVisible = !this.eventFormVisible;
   }
+
+  // 🔄 Ereignis abbrechen (Formular leeren)
+  cancelEventCreation() {
+    this.newEvent = { name: '', payer: '', amount: 0, beneficiaries: [] };
+    this.payer = '';
+    this.selectedPayer = null;
+    this.eventFormVisible = false;
+  }
+
+  // 🔍 Nutzerfilter für Payer (Autovervollständigung)
+  filterUsers() {
+    this.filteredUsers = this.users.filter(user =>
+      user.name.toLowerCase().includes(this.payer.toLowerCase())
+    );
+  }
+
+  // ✅ Payer auswählen
+  selectPayer(user: { name: string; roles: string[] }) {
+    this.newEvent.payer = user.name;
+    this.selectedPayer = user;
+    this.payer = user.name;
+    this.filteredUsers = [];
+  }
+
+  // ✅ Nutzer als Empfänger hinzufügen/entfernen
+  toggleBeneficiary(name: string, event: any) {
+    if (event.target.checked) {
+      this.newEvent.beneficiaries.push(name);
+    } else {
+      this.newEvent.beneficiaries = this.newEvent.beneficiaries.filter(b => b !== name);
+    }
+  }
+
+  // 💾 Ereignis speichern
+  saveEvent() {
+    if (this.newEvent.name && this.newEvent.payer && this.newEvent.amount > 0 && this.newEvent.beneficiaries.length > 0) {
+      this.userService.addEvent(this.newEvent);
+      this.events = this.userService.getEvents();
+      this.cancelEventCreation();
+    }
+  }
+
+  // ❌ Ereignis löschen
+  deleteEvent(index: number) {
+    this.events.splice(index, 1);
+    this.userService.setEvents(this.events);
+  }
+
+  // 💰 Berechnet Schuldenübersicht
+  calculateDebts(): { [key: string]: number } {
+    let debts: { [key: string]: number } = {};
+    this.users.forEach(user => (debts[user.name] = 0));
+
+    this.events.forEach(event => {
+      const splitAmount = event.amount / event.beneficiaries.length;
+      event.beneficiaries.forEach(beneficiary => {
+        debts[beneficiary] -= splitAmount;
+        debts[event.payer] += splitAmount;
+      });
+    });
+
+    return debts;
+  }
+
+
 }
+
+
+
+
+
+
 
 
 
