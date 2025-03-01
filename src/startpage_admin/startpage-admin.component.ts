@@ -119,7 +119,7 @@ export class StartpageAdminComponent {
       event.beneficiaries = event.beneficiaries.filter(b => b !== userToDelete);
     });
   
-    // Ereignisse aktualisieren
+    // Ereignisse aktualisierenn
     this.userService.setEvents(this.events);
   }
   
